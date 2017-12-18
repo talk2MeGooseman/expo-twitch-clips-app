@@ -9,7 +9,7 @@ import CONSTANTS from './Constants';
 import {CLIENT_ID} from './secrets';
 import {
   Constants,
-  WebBrowser
+  AuthSession,
 } from 'expo';
 
 const TWITCH_ACCEPT = "application/vnd.twitchtv.v5+json";
@@ -17,21 +17,37 @@ const REDIRECT_URI = Constants.linkingUri;
 const SCOPES = 'collections_edit user_follows_edit user_subscriptions user_read user_subscriptions';
 const V5_TWITCH_BASE_URL = "https://api.twitch.tv/kraken";
 
+/**
+ * Converts an object to a query string.
+ */
+function toQueryString(params) {
+  return '?' + Object.entries(params)
+    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+    .join('&');
+}
+
 export default class TwitchAPI {
   constructor() {
     this.access_token = null;
   }
 
-  async getUserAccessToken(dispatch) {
-    const url = `${V5_TWITCH_BASE_URL}/oauth2/authorize?response_type=token&client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=${SCOPES}&force_verify=true`;
-    Linking.addEventListener('url', (event) => { this.browserCallback(event, dispatch) });
-    await WebBrowser.openBrowserAsync(encodeURI(url));
-    Linking.removeListener('url', (event) => { this.browserCallback(event, dispatch) });
+  getUserAccessToken = async (dispatch) => {
+    const redirectUrl = AuthSession.getRedirectUrl();
+    const result = await AuthSession.startAsync({
+      authUrl: `${V5_TWITCH_BASE_URL}/oauth2/authorize` + toQueryString({
+        client_id: CLIENT_ID,
+        response_type: 'token',
+        scope: SCOPES,
+        redirect_uri: redirectUrl,
+      }),
+    });
+
+    if (result.type === 'success') {
+      this.browserCallback(result, dispatch);
+    }
   }
 
   async browserCallback(event, dispatch) {
-    WebBrowser.dismissBrowser();
-    console.log(event);
     const access_token = event.url.toString().match(/access_token=([^&]+)/);
     let valid = false;
     // Check for issue with Kindle Fire Tablet

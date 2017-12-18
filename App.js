@@ -18,7 +18,6 @@ const thunk = store => {
       return action(dispatch, getState)
     }
 
-    console.log(action)
     return next(action)
   }
 }
