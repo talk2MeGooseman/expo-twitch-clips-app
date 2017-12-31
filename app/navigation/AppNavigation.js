@@ -7,7 +7,7 @@ import UserClipsView from '../views/UserClipsView';
 import UserVideosView from '../views/UserVideosView';
 import VideoPlayerView from '../views/VideoPlayerView';
 import NativeBaseTheme from '../../native-base-theme/variables/platform';
-import UserStuffView from '../views/UserStuffView';
+import ChannelView from '../views/ChannelView';
 import ChannelFollowersView from '../views/ChannelFollowersView';
 import ChannelVideosView from '../views/ChannelVideosView';
 import LoggingOutView from '../views/LoggingOutView';
@@ -101,8 +101,8 @@ const TopClipsStack = StackNavigator({
   }
 });
 
-const UserStuffStack = StackNavigator({
-  UserStuffView: { screen: UserStuffView},
+const ChannelViewStack = StackNavigator({
+  ChannelView: { screen: ChannelView},
   ChannelFollowersView: { screen: ChannelFollowersView},
   ChannelVideosView: { screen: ChannelVideosView },
   ChannelClipsView: { screen: UserClipsView },
@@ -144,7 +144,7 @@ const FavoritesStack = StackNavigator({
 const DrawerStack = DrawerNavigator({
   TopClipsStack: { screen: TopClipsStack},
   FollowingStack: { screen: FollowingStack },
-  UserStuffStack: { screen: UserStuffStack},
+  ChannelViewStack: { screen: ChannelViewStack},
   FavoritesStack: { screen: FavoritesStack },
   LogOut: { screen: LoggingOutView },
 });

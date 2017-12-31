@@ -37,7 +37,7 @@ class TrendingClipsView extends Component {
     return {
       drawerLabel: 'Top Clips',
       title: 'Trending Clips',
-      headerTitle: <Title>Top Clips</Title>,
+      headerTitle: <Title style={{ color: "#fff" }}>Top Clips</Title>,
       headerLeft: <Button onPress={() => { navigation.navigate('DrawerOpen'); }}><Icon name="menu" /></Button>,
     };
   };

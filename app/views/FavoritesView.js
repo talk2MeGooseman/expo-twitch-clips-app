@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, FlatList } from 'react-native';
-import { Button, Icon, Title } from "native-base";
+import { Button, Icon, Title, Text } from "native-base";
 import { connect } from 'react-redux';
 import { removeBookmark, addBookmark } from '../redux/actions/bookmarkActions';
 import ClipCard from '../components/ClipCard';
@@ -9,7 +9,7 @@ class FavoritesView extends Component {
     static navigationOptions = ({navigation}) => {
         return({
             title: 'Your Favorites',
-            headerTitle: <Title>Your Favorites</Title>,
+            headerTitle: <Title style={{ color: "#fff" }}>Your Favorites</Title>,
             headerLeft: <Button onPress={() => { navigation.navigate('DrawerOpen'); }}><Icon name="menu" /></Button>,
         });
     };
@@ -66,6 +66,10 @@ class FavoritesView extends Component {
         return <ClipCard { ...passProps } />;
     }
 
+    renderEmptyList = () => {
+        return <Text style={{ textAlign: 'center' }}>Favorite somes clips, to view them here.</Text>;
+    }
+
     render() {
         let bookmarksArray = [];
         Object.keys(this.props.bookmarks).map((id) => {
@@ -78,6 +82,7 @@ class FavoritesView extends Component {
                     data={bookmarksArray}
                     renderItem={(item) => this._addCard(item) }
                     keyExtractor={ (video) => video.id }
+                    ListEmptyComponent={this.renderEmptyList()}
                 />
             </View>
         )

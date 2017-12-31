@@ -30,7 +30,7 @@ class ChannelFollowersView extends Component {
         const params = navigation.state.params;
         return {
             title: 'Followers',
-            headerTitle: <Title>Followers</Title>,
+            headerTitle: <Title  style={{ color: "#fff" }}>Followers</Title>,
         };
     };
 

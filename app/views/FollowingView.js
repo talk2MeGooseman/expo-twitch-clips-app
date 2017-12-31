@@ -12,7 +12,8 @@ class FollowingView extends Component {
         return {
             drawerLabel: 'Following',
             title: 'Following',
-            headerTitle: <Title>Following</Title>,
+            headerBackTitle: 'Back',
+            headerTitle: <Title style={{ color: "#fff" }}>Following</Title>,
             headerLeft: <Button onPress={() => { navigation.navigate('DrawerOpen'); }}><Icon name="menu" /></Button>,
         };
     };

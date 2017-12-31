@@ -37,7 +37,7 @@ import { fetchUsersVideos } from "../redux/actions/userVideoActions";
 
 const { height, width } = Dimensions.get('window');
 
-class UserStuffView extends Component {
+class ChannelView extends Component {
     static propTypes = ({
         titleImage: PropTypes.string,
         followersCount: PropTypes.number,
@@ -51,7 +51,8 @@ class UserStuffView extends Component {
         return {
             drawerLabel: 'Your Channel',
             title: 'You Channel',
-            headerTitle: <Title>{params.username}</Title>,
+            headerBackTitle: 'Back',
+            headerTitle: <Title style={{ color: "#fff" }}>{params.username}</Title>,
             headerLeft: <Button onPress={() => { navigation.navigate('DrawerOpen'); }}><Icon name="menu" /></Button>,
         };
     };
@@ -135,9 +136,10 @@ class UserStuffView extends Component {
         return (
             <Container>
                 <Content>
-                    <Image style={styles.twitchBackgroundImage} source={require('../assets/twitch-bg.jpg')}>
-                        <Image style={styles.titleImage} source={{ uri: this.props.titleImage }} />
-                    </Image>
+                    <View style={styles.twitchBackgroundImage}>
+                        <Image style={ {width: '100%', height: '100%'} } source={require('../assets/twitch-bg.jpg')} />
+                    </View> 
+                    <Image style={styles.titleImage} source={{ uri: this.props.titleImage }} />
                     <View style={ { flexDirection: 'row' } }>
                         <Card style={ styles.cardStyles }>
                             <TouchableOpacity onPress={this._onFollowersPress}>
@@ -200,12 +202,14 @@ const styles = StyleSheet.create({
         width: '100%',
         height: height * .30,
         backgroundColor: 'black',
-        alignItems: 'center',
-        justifyContent: 'center'
+        alignSelf: 'center',
     },
     titleImage: {
-        width: 100,
-        height: 100
+        position: 'absolute',
+        top: '25%',
+        left: '40%',
+        width: width * .20,
+        height: height * .10,
     }
 });
 
@@ -217,4 +221,4 @@ const mapStateToProps = (state) => ({
     videosCount: state.currentUserVideos.total,
 });
 
-export default connect(mapStateToProps)(UserStuffView)
+export default connect(mapStateToProps)(ChannelView);

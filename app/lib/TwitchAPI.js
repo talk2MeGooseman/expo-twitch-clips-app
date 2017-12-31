@@ -6,12 +6,12 @@ import {
   userAuthed,
 } from '../redux/actions/userAuthActions'
 import CONSTANTS from './Constants';
-import {CLIENT_ID} from './secrets';
 import {
   Constants,
   AuthSession,
 } from 'expo';
 
+const CLIENT_ID = 'imgxjm3xjyq0kupk8ln0s11b3bpu1x';
 const TWITCH_ACCEPT = "application/vnd.twitchtv.v5+json";
 const REDIRECT_URI = Constants.linkingUri;
 const SCOPES = 'collections_edit user_follows_edit user_subscriptions user_read user_subscriptions';
@@ -87,7 +87,7 @@ export default class TwitchAPI {
 
     } catch (error) {
       console.log('Request Error: access_token', token, error)
-      result = false;
+      return false;
     }
     return result.token.valid;
   }
