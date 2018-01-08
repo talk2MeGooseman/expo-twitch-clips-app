@@ -16,6 +16,7 @@ import EmptyListText from "../components/EmptyListText";
 import { connect } from 'react-redux';
 import { fetchUsersVideos, refreshUserVideos} from '../redux/actions/userVideoActions';
 import { removeBookmark, addBookmark } from '../redux/actions/bookmarkActions';
+import openURL from '../services/openBrowser';
 
 class UserVideosView extends Component {
     static navigationOptions = ({navigation}) => {
@@ -49,7 +50,8 @@ class UserVideosView extends Component {
     }
 
     toggleVideoOverlay = (url) => {
-        this.props.navigation.navigate('VideoPlayerView', { embedUrl: url});
+        // this.props.navigation.navigate('VideoPlayerView', { embedUrl: url});
+        openURL(url);
     }
 
     _onBookmarkPress = (id) => {

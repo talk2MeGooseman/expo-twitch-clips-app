@@ -4,6 +4,7 @@ import { Button, Icon, Title, Text } from "native-base";
 import { connect } from 'react-redux';
 import { removeBookmark, addBookmark } from '../redux/actions/bookmarkActions';
 import ClipCard from '../components/ClipCard';
+import openURL from '../services/openBrowser';
 
 class FavoritesView extends Component {
     static navigationOptions = ({navigation}) => {
@@ -15,7 +16,8 @@ class FavoritesView extends Component {
     };
 
     toggleVideoOverlay = (url) => {
-        this.props.navigation.navigate('VideoPlayerView', { embedUrl: url});
+        // this.props.navigation.navigate('VideoPlayerView', { embedUrl: url});
+        openURL(url);
     }
 
     _onBookmarkPress = (id) => {

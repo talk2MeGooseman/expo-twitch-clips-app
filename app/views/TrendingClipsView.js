@@ -20,6 +20,7 @@ import ClipsList from '../components/ClipsList';
 import { fetchTrendingClips, setTrendingClipsCount } from "../redux/actions/topClipsActions";
 import { connect } from 'react-redux';
 import { addBookmark, removeBookmark } from '../redux/actions/bookmarkActions';
+import openURL from '../services/openBrowser';
 
 const TAB1_NAME = "Most Viewed";
 const TAB2_NAME = "Trending";
@@ -32,6 +33,7 @@ const CLIPS_100 = "3";
 const CANCEL_INDEX = 4;
 
 class TrendingClipsView extends Component {
+
   static navigationOptions = ({ navigation }) => {
     const { params } = navigation.state;
     return {
@@ -41,22 +43,24 @@ class TrendingClipsView extends Component {
       headerLeft: <Button onPress={() => { navigation.navigate('DrawerOpen'); }}><Icon name="menu" /></Button>,
     };
   };
+
   componentDidMount() {
-    this.fetchVideos();
+    this._fetchVideos();
     this.props.navigation.setParams({ onFunnelClick: this._displayFilterOption });
   }
 
   componentDidUpdate(prevProps){
     if (prevProps.trending_count !== this.props.trending_count) {
-      this.fetchVideos();
+      this._fetchVideos();
     }
   }
 
   toggleVideoOverlay(url) {
-    this.props.navigation.navigate('VideoPlayerView', { embedUrl: url });
+    // this.props.navigation.navigate('VideoPlayerView', { embedUrl: url });
+    openURL(url);
   }
 
-  fetchVideos = () => {
+  _fetchVideos = () => {
     let { dispatch } = this.props.navigation;
     dispatch(fetchTrendingClips(this.props.trending_count));
   }

@@ -7,6 +7,7 @@ import {
 } from 'native-base';
 import { fetchUsersClips, fetchingUserClips, refreshUserClips } from '../redux/actions/userClipsActions';
 import { removeBookmark, addBookmark } from '../redux/actions/bookmarkActions';
+import openURL from '../services/openBrowser';
 
 class UserClipsView extends Component {
     static navigationOptions = ({navigation}) => {
@@ -77,7 +78,8 @@ class UserClipsView extends Component {
     }
 
     toggleVideoOverlay(url) {
-        this.props.navigation.navigate('VideoPlayerView', { embedUrl: url});
+        // this.props.navigation.navigate('VideoPlayerView', { embedUrl: url});
+        openURL(url);
     }
 
     render(){

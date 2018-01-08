@@ -20,6 +20,7 @@ import ClipsList from '../components/ClipsList';
 import { fetchSuggestedTopClips, setSuggestedClipsCount } from "../redux/actions/topClipsActions";
 import { connect } from 'react-redux';
 import { addBookmark, removeBookmark } from '../redux/actions/bookmarkActions';
+import openURL from '../services/openBrowser';
 
 
 const BUTTONS = ["25 Clips", "50 Clips", "75 Clips", "100 clips", "Cancel"];
@@ -52,7 +53,8 @@ class PopularClipsView extends Component {
   }
 
   toggleVideoOverlay(url) {
-    this.props.navigation.navigate('VideoPlayerView', { embedUrl: url });
+    // this.props.navigation.navigate('VideoPlayerView', { embedUrl: url });
+    openURL(url);
   }
 
   fetchTopVideos = () => {

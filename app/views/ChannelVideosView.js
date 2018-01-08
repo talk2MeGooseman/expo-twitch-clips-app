@@ -7,6 +7,7 @@ import ClipCard from "../components/ClipCard";
 import EmptyListText from "../components/EmptyListText";
 import ListFooter from "../components/ListFooter";
 import { removeBookmark, addBookmark } from "../redux/actions/bookmarkActions";
+import openURL from '../services/openBrowser';
 
 class ChannelVideosView extends Component {
     static navigationOptions = ({navigation}) => {
@@ -30,7 +31,8 @@ class ChannelVideosView extends Component {
     }
 
     _toggleVideoOverlay = (url) => {
-        this.props.navigation.navigate('VideoPlayerView', { embedUrl: url});
+        // this.props.navigation.navigate('VideoPlayerView', { embedUrl: url});
+        openURL(url);
     }
 
     _onBookmarkPress = (id) => {

@@ -43,7 +43,7 @@ export default class TwitchDashboardApp extends Component {
         </Provider>
       );
     } else {
-      return '';      
+      return null;      
     }
   }
 
