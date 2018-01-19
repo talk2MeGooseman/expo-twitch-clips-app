@@ -25,13 +25,6 @@ import openURL from '../services/openBrowser';
 const TAB1_NAME = "Most Viewed";
 const TAB2_NAME = "Trending";
 
-const BUTTONS = ["25 Clips", "50 Clips", "75 Clips", "100 clips", "Cancel"];
-const CLIPS_25 = "0";
-const CLIPS_50 = "1";
-const CLIPS_75 = "2";
-const CLIPS_100 = "3";
-const CANCEL_INDEX = 4;
-
 class TrendingClipsView extends Component {
 
   static navigationOptions = ({ navigation }) => {
@@ -62,49 +55,7 @@ class TrendingClipsView extends Component {
 
   _fetchVideos = () => {
     let { dispatch } = this.props.navigation;
-    dispatch(fetchTrendingClips(this.props.trending_count));
-  }
-
-  _displayFilterOption = () => {
-    ActionSheet.show(
-      {
-        options: BUTTONS,
-        cancelButtonIndex: CANCEL_INDEX,
-        title: "Number of Clips"
-      },
-      this._userSelectedOption.bind(this)
-    )
-  }
-
-  _userSelectedOption(index) {
-    let count = this.props.count;
-    switch (index) {
-      case CLIPS_25:
-        count = 25;
-        break;
-      case CLIPS_50:
-        count = 50;
-        break;
-      case CLIPS_75:
-        count = 75;
-        break;
-      case CLIPS_100:
-        count = 100;
-        break;
-      default:
-        break;
-    }
-    
-    let { dispatch } = this.props.navigation;
-    dispatch(setTrendingClipsCount(count));
-  }
-
-  _renderHeader = () => {
-    return (
-      <View style={styles.buttonArea}>
-        <Button light small onPress={ this._displayFilterOption } ><Icon name="ios-funnel" /></Button>
-      </View>
-    );
+    dispatch(fetchTrendingClips(this.props.cursor));
   }
 
   _onBookmarkPress = (id) => {
@@ -115,7 +66,6 @@ class TrendingClipsView extends Component {
     if (!data) {
       return;
     }
-
 
     const { dispatch } = this.props.navigation;
     if (this.props.bookmarks[id]) {
@@ -136,7 +86,6 @@ class TrendingClipsView extends Component {
             data={this.props.trending_clips}
             loading={this.props.loading}
             refreshing={this.props.refreshing}
-            renderHeader={this._renderHeader}
             onBookmarkPress={(id) => { this._onBookmarkPress(id)} }
             bookmarks={this.props.bookmarks}
           />
@@ -149,12 +98,6 @@ class TrendingClipsView extends Component {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: 'gray'
-  },
-  buttonArea: {
-    marginTop: 5,
-    marginLeft: 5,
-    marginRight: 5,
-    alignSelf: 'flex-end',
   }
 });
 

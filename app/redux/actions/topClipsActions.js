@@ -28,9 +28,9 @@ function trendingClipsResponse(response) {
     };
 }
 
-function requestTrendingClips(count) {
+function requestTrendingClips(cursor) {
     return async (dispatch) => {
-        let results = await TwitchAPI.getTopClipsForUser({ trending: true, count: count });
+        let results = await TwitchAPI.topClips({ trending: true, cursor });
         dispatch(trendingClipsResponse(results));
     }
 }
@@ -71,9 +71,9 @@ function suggestedTopClipsResponse(result) {
     }
 }
 
-function requestSuggestedTopClips(count) {
+function requestSuggestedTopClips(cursor) {
     return async (dispatch) => {
-      let results = await TwitchAPI.getTopClipsForUser({trending: false, count: count});
+      let results = await TwitchAPI.topClips({trending: false, cursor });
       dispatch(suggestedTopClipsResponse(results));
     }
 }

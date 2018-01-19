@@ -10,21 +10,23 @@ import {
   Constants,
   AuthSession,
 } from 'expo';
+import { buildParams, getRequest, toQueryString } from "./apiUtils";
 
 const CLIENT_ID = 'imgxjm3xjyq0kupk8ln0s11b3bpu1x';
-const TWITCH_ACCEPT = "application/vnd.twitchtv.v5+json";
+const V5_TWITCH_ACCEPT = "application/vnd.twitchtv.v5+json";
 const REDIRECT_URI = Constants.linkingUri;
 const SCOPES = 'collections_edit user_follows_edit user_subscriptions user_read user_subscriptions';
 const V5_TWITCH_BASE_URL = "https://api.twitch.tv/kraken";
 
-/**
- * Converts an object to a query string.
- */
-function toQueryString(params) {
-  return '?' + Object.entries(params)
-    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
-    .join('&');
-}
+const BASE_HEADER = {
+  "client-id": CLIENT_ID
+};
+
+const V5_HEADER = {
+  ...BASE_HEADER,
+  "accept": V5_TWITCH_ACCEPT,
+  'Content-Type': 'application/json',
+};
 
 export default class TwitchAPI {
   constructor() {
@@ -71,14 +73,9 @@ export default class TwitchAPI {
       if (!token) {
         token = await AsyncStorage.getItem('TWITCH:ACCESS_TOKEN:key');
       }
-      const response = await fetch(`${V5_TWITCH_BASE_URL}?oauth_token=${token}`, {
-        method: 'GET',
-        headers: {
-          "client-id": CLIENT_ID,
-          "accept": TWITCH_ACCEPT
-        }
-      });
 
+      let params = [`oauth_token=${token}`];
+      const response = await getRequest(V5_TWITCH_BASE_URL, params, V5_HEADER);
       result = await response.json();
 
       if (result.token.user_id) {
@@ -92,6 +89,16 @@ export default class TwitchAPI {
     return result.token.valid;
   }
 
+  static async topClips({period = 'week', trending = true, cursor=''}) {
+    const url = `${V5_TWITCH_BASE_URL}/clips/top`;
+    let params = [`limit=100`, `cursor=${cursor}`, `period=${period}`, `trending=${trending}`];
+
+    const response = await getRequest(url, params, V5_HEADER);
+    let result = await response.json();
+
+    return result;
+  }
+
   static async getTopClipsForUser({
     trending,
     cursor = "",
@@ -101,49 +108,40 @@ export default class TwitchAPI {
     let token = null;
     try {
       token = await AsyncStorage.getItem('TWITCH:ACCESS_TOKEN:key');
-      const response = await fetch(`${V5_TWITCH_BASE_URL}/clips/followed?limit=${count}&trending=${trending}`, {
-        method: 'GET',
-        headers: {
-          "Client-ID": CLIENT_ID,
-          "Authorization": `OAuth ${token}`,
-          "Accept": TWITCH_ACCEPT,
-          'Content-Type': 'application/json',
-        }
-      });
 
+      const url = `${V5_TWITCH_BASE_URL}/clips/followed`;
+      let params = [`limit=${count}`, `trending=${trending}`];
+      const header = {
+        ...V5_TWITCH_ACCEPT,
+        "Authorization": `OAuth ${token}`,
+      };
+
+      const response = await getRequest(url, params, header);
       result = await response.json();
 
       if (response.status === 401) throw result.message;
     } catch (error) {
-      console.log('Request Error: access_token', token, error)
+      console.log('Request Error:', error)
       result = false;
     }
+
     return result;
   }
 
   static async v5fetchUsersInfo(user_id) {
-    const response = await fetch(`${V5_TWITCH_BASE_URL}/channels/${user_id}`, {
-      method: 'GET',
-      headers: {
-        "client-id": CLIENT_ID,
-        "accept": TWITCH_ACCEPT
-      }
-    });
+    const url = `${V5_TWITCH_BASE_URL}/channels/${user_id}`;
 
+    const response = await getRequest(url, [], V5_HEADER);
     let result = await response.json();
 
     return result;
   }
 
   static async v5getChannelFollowers(channel_id, cursor = '') {
-    const response = await fetch(`${V5_TWITCH_BASE_URL}/channels/${channel_id}/follows?limit=100&cursor=${cursor}`, {
-      method: 'GET',
-      headers: {
-        "client-id": CLIENT_ID,
-        "accept": TWITCH_ACCEPT
-      }
-    });
+    const url = `${V5_TWITCH_BASE_URL}/channels/${channel_id}/follows`;
+    let params = [`limit=100`, `cursor=${cursor}`];
 
+    const response = await getRequest(url, params, V5_HEADER);
     let result = await response.json();
 
     return (result);
@@ -154,16 +152,13 @@ export default class TwitchAPI {
     let {
       user_id
     } = JSON.parse(userInfo);
-    const response = await fetch(`${V5_TWITCH_BASE_URL}/users/${user_id}/follows/channels?limit=100&offset=${offset}`, {
-      method: 'GET',
-      headers: {
-        "client-id": CLIENT_ID,
-        "accept": TWITCH_ACCEPT
-      }
-    });
+    
+    const url = `${V5_TWITCH_BASE_URL}/users/${user_id}/follows/channels`;
+    let params = ['limit=100', `offset=${offset}`];
 
+    const response = await getRequest(url, params, V5_HEADER);
     let result = await response.json();
-    console.log(result);
+
     return (result);
   }
 
@@ -176,18 +171,13 @@ export default class TwitchAPI {
     let {
       user_id
     } = JSON.parse(userInfo);
-    const response = await fetch(`${V5_TWITCH_BASE_URL}/clips/top?channel=${channel_name}&limit=25&period=${period}&cursor=${cursor}`, {
-      method: 'GET',
-      headers: {
-        "client-id": CLIENT_ID,
-        "accept": TWITCH_ACCEPT
-      }
-    });
+    const url = `${V5_TWITCH_BASE_URL}/clips/top`;
+    let params = [`channel=${channel_name}`, 'limit=25', `period=${period}`, `cursor=${cursor}`];
+   
+    const response = await getRequest(url, params, V5_HEADER);
 
     let result = await response.json();
-    if (result.status === 400) {
-      alert('Sorry Something Went Wrong :(');
-    }
+
     return (result);
   }
 
@@ -196,13 +186,10 @@ export default class TwitchAPI {
     sort = 'time ',
     offset = 0
   }) {
-    const response = await fetch(`${V5_TWITCH_BASE_URL}/channels/${channel_id}/videos?limit=25&offset=${offset}`, {
-      method: 'GET',
-      headers: {
-        "client-id": CLIENT_ID,
-        "accept": TWITCH_ACCEPT
-      }
-    });
+    const url = `${V5_TWITCH_BASE_URL}/channels/${channel_id}/videos`;
+    let params = ['limit=25', `offset=${offset}`];
+
+    const response = await getRequest(url, params, V5_HEADER);
 
     let result = await response.json();
 
@@ -228,15 +215,16 @@ export default class TwitchAPI {
     }
 
     do {
-      const response = await fetch(`${V5_TWITCH_BASE_URL}/streams/followed?limit=100&stream_type=${type}&offset=${totalResults.length}`, {
-        method: 'GET',
-        headers: {
-          "client-id": CLIENT_ID,
-          "accept": TWITCH_ACCEPT,
-          "Authorization": `OAuth ${token}`,
-        }
-      });
+      const url = `${V5_TWITCH_BASE_URL}/streams/followed`;
+      let params = ['limit=100', `stream_type=${type}`, `offset=${totalResults.length}`];
+      const headers = {
+        ...V5_HEADER,
+        "Authorization": `OAuth ${token}`,
+      };
+
+      const response = await getRequest(url, params, headers);
       result = await response.json();
+
       totalResults = totalResults.concat(result.streams);
     } while (result._total > totalResults.length)
 
@@ -244,14 +232,11 @@ export default class TwitchAPI {
   }
 
   static async fetchLiveUsers(user_ids) {
-    const params = user_ids.map((user_id) => `user_id=${user_id}`);
+    let params = user_ids.map((user_id) => `user_id=${user_id}`);
+    params = params.concat(['type%20=live', 'first=100']);
 
-    const response = await fetch(`https://api.twitch.tv/helix/streams?${params.join('&')}&type%20=live&first=100`, {
-      method: 'GET',
-      headers: {
-        "client-id": CLIENT_ID,
-      }
-    });
+    const url = `https://api.twitch.tv/helix/streams`;
+    const response = await getRequest(url, params, BASE_HEADER);
 
     let result = await response.json();
 
@@ -259,14 +244,11 @@ export default class TwitchAPI {
   }
 
   static async fetchVodcastUsers(user_ids) {
-    const params = user_ids.map((user_id) => `user_id=${user_id}`);
+    let params = user_ids.map((user_id) => `user_id=${user_id}`);
 
-    const response = await fetch(`https://api.twitch.tv/helix/streams?${params.join('&')}&type=vodcast&first=100`, {
-      method: 'GET',
-      headers: {
-        "client-id": CLIENT_ID,
-      }
-    });
+    params = params.concat(['type=vodcast', 'first=100']);
+    const url = `https://api.twitch.tv/helix/streams`;
+    const response = await getRequest(url, params, BASE_HEADER);
 
     let result = await response.json();
 
@@ -274,12 +256,9 @@ export default class TwitchAPI {
   }
 
   static async getUsersFollow(user_id) {
-    const response = await fetch(`https://api.twitch.tv/helix/users/follows?from_id=${user_id}&first=100`, {
-      method: 'GET',
-      headers: {
-        "client-id": CLIENT_ID,
-      }
-    });
+    const url = `https://api.twitch.tv/helix/users/follows`;
+    let params = [`from_id=${user_id}`, `first=100`];
+    const response = await getRequest(url, params, BASE_HEADER);
 
     let result = await response.json();
 
@@ -292,13 +271,12 @@ export default class TwitchAPI {
 
   static async currentUserInfo() {
     let token = await AsyncStorage.getItem('TWITCH:ACCESS_TOKEN:key');
-    const response = await fetch(`https://api.twitch.tv/helix/users`, {
-      method: 'GET',
-      headers: {
-        "client-id": CLIENT_ID,
-        "Authorization": `Bearer ${token}`,
-      }
-    });
+    const url = `https://api.twitch.tv/helix/users`;
+    const headers = {
+      ...BASE_HEADER,
+      "Authorization": `Bearer ${token}`
+    };
+    const response = await getRequest(url, [], headers);
 
     let result = await response.json();
 
